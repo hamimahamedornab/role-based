@@ -4,11 +4,18 @@ import "../styles/Dashboard.css";
 
 const Dashboard = ({ currentUser, handleLogout }) => {
   const [posts, setPosts] = useState([]);
-  const [newPost, setNewPost] = useState({ title: "", description: "" });
+  const [users, setUsers] = useState([]);
+  const [newPost, setNewPost] = useState({
+    title: "",
+    description: "",
+    assignedTo: "",
+  });
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("posts")) || [];
-    setPosts(saved);
+    const savedPosts = JSON.parse(localStorage.getItem("posts")) || [];
+    const savedUsers = JSON.parse(localStorage.getItem("users")) || [];
+    setPosts(savedPosts);
+    setUsers(savedUsers);
   }, []);
 
   const savePosts = (updated) => {
@@ -18,10 +25,10 @@ const Dashboard = ({ currentUser, handleLogout }) => {
 
   const handleAdd = (e) => {
     e.preventDefault();
-    if (!newPost.title || !newPost.description) return;
+    if (!newPost.title || !newPost.description || !newPost.assignedTo) return;
     const updated = [...posts, newPost];
     savePosts(updated);
-    setNewPost({ title: "", description: "" });
+    setNewPost({ title: "", description: "", assignedTo: "" });
   };
 
   const handleEdit = (index, updatedPost) => {
@@ -34,9 +41,17 @@ const Dashboard = ({ currentUser, handleLogout }) => {
     savePosts(updated);
   };
 
+  // Show only the tasks for this user if not admin
+  const visiblePosts =
+    currentUser.role === "admin"
+      ? posts
+      : posts.filter((p) => p.assignedTo === currentUser.email);
+
   return (
     <div className="dashboard-container">
-      <h2>Welcome, {currentUser.role === "admin" ? "Admin" : "User"}</h2>
+      <h2>
+        Welcome, {currentUser.role === "admin" ? "Admin" : currentUser.name}
+      </h2>
 
       {currentUser.role === "admin" && (
         <form onSubmit={handleAdd}>
@@ -53,12 +68,27 @@ const Dashboard = ({ currentUser, handleLogout }) => {
               setNewPost({ ...newPost, description: e.target.value })
             }
           />
-          <button type="submit">Add Post</button>
+          <select
+            value={newPost.assignedTo}
+            onChange={(e) =>
+              setNewPost({ ...newPost, assignedTo: e.target.value })
+            }
+          >
+            <option value="">Assign to user...</option>
+            {users
+              .filter((u) => u.role === "user")
+              .map((u, i) => (
+                <option key={i} value={u.email}>
+                  {u.name} ({u.email})
+                </option>
+              ))}
+          </select>
+          <button type="submit">Add Task</button>
         </form>
       )}
 
       <PostList
-        posts={posts}
+        posts={visiblePosts}
         role={currentUser.role}
         onEdit={handleEdit}
         onDelete={handleDelete}

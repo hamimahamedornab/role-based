@@ -12,9 +12,9 @@ const PostList = ({ posts, role, onEdit, onDelete }) => {
 
   return (
     <div className="postlist-container">
-      <h3>All Posts</h3>
+      <h3>{role === "admin" ? "All Tasks" : "My Tasks"}</h3>
       {posts.length === 0 ? (
-        <p>No posts available.</p>
+        <p>No tasks available.</p>
       ) : (
         posts.map((post, index) => (
           <div key={index} className="post-item">
@@ -39,6 +39,14 @@ const PostList = ({ posts, role, onEdit, onDelete }) => {
               <>
                 <h4>{post.title}</h4>
                 <p>{post.description}</p>
+
+                {/* Show assigned user email if admin */}
+                {role === "admin" && post.assignedTo && (
+                  <p className="assigned-info">
+                    <strong>Assigned to:</strong> {post.assignedTo}
+                  </p>
+                )}
+
                 {role === "admin" && (
                   <div className="btn-group">
                     <button
