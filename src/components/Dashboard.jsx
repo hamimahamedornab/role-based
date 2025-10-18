@@ -50,7 +50,7 @@ const Dashboard = ({ currentUser, handleLogout }) => {
   return (
     <div className="dashboard-container">
       <h2>
-        Welcome, {currentUser.role === "admin" ? "Admin" : currentUser.name}
+        Welcome, {currentUser.role === "admin" ? "Admin" : currentUser.email}
       </h2>
 
       {currentUser.role === "admin" && (
@@ -79,7 +79,7 @@ const Dashboard = ({ currentUser, handleLogout }) => {
               .filter((u) => u.role === "user")
               .map((u, i) => (
                 <option key={i} value={u.email}>
-                  {u.name} ({u.email})
+                  ({u.email})
                 </option>
               ))}
           </select>
